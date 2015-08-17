@@ -1,5 +1,5 @@
 /**
- * Binds a TinyMCE widget to <textarea> elements.
+ * Binds a TinyMCE widget to <textarea> elements test.
  */
 angular.module('ui.tinymce', [])
   .value('uiTinymceConfig', {})
