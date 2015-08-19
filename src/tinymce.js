@@ -38,12 +38,14 @@ angular.module('ui.tinymce', [])
 
             if (tinyInstance) {
               tinyInstance.getBody().setAttribute('contenteditable', false);
+              angular.element(tinyInstance.getBody()).addClass('editor-disable');
             }
           } else {
             ensureInstance();
 
             if (tinyInstance) {
               tinyInstance.getBody().setAttribute('contenteditable', true);
+              angular.element(tinyInstance.getBody()).removeClass('editor-disable');
             }
           }
         }
