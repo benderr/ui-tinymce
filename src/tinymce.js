@@ -50,13 +50,16 @@ angular.module('ui.tinymce', [])
 					}
 				}
 
-				// generate an ID
-				attrs.$set('id', ID_ATTR + '-' + generatedIds++);
-
 				expression = {};
 
 				angular.extend(expression, scope.$eval(attrs.uiTinymce));
 
+				if (expression.id) {
+					attrs.$set('id', expression.id);
+				} else {
+					// generate an ID
+					attrs.$set('id', ID_ATTR + '-' + generatedIds++);
+				}
 				options = {
 					// Update model when calling setContent
 					// (such as from the source editor popup)
@@ -64,9 +67,11 @@ angular.module('ui.tinymce', [])
 						ed.on('init', function () {
 							ngModel.$render();
 							ngModel.$setPristine();
-							if (form) {
-								form.$setPristine();
-							}
+							//if (form) {
+							//	form.$setPristine();
+							//}
+							_initValidation();
+							ngModel.$validate();
 						});
 
 						// Update model on button click
@@ -88,6 +93,7 @@ angular.module('ui.tinymce', [])
 
 						ed.on('focus', function () {
 							inFocus = true;
+							ngModel.$setDirty();
 						});
 
 						// Update model when an object has been resized (table, image)
@@ -147,8 +153,16 @@ angular.module('ui.tinymce', [])
 				};
 
 				ngModel.$validators.empty = function (modelValue, viewValue) {
+
+					_initValidation();
+
+					if (!attrs.required)
+						return true;
+
+					ensureInstance();
 					if (!tinyInstance)
 						return true;
+
 					var content = tinyInstance.getContent({format: 'text'});
 					if (!content || content.trim() == '') {
 						return false;
@@ -156,18 +170,34 @@ angular.module('ui.tinymce', [])
 					return true;
 				};
 
-				ngModel.inFocus = function () {
-					return inFocus;
+				//$timeout(function () {
+				//	ngModel.$validate();
+				//});
+
+				function _initValidation() {
+					ensureInstance();
+					if (!tinyInstance)
+						return;
+					var el = angular.element(tinyInstance.getContainer());
+					//var validClass = "editor-success", invalidClass = "editor-error";
+
+					ngModel.inFocus = function () {
+						return inFocus;
+					};
+
+					ngModel.setFocus = function () {
+						if (tinyInstance)
+							tinyInstance.focus();
+					};
+
+					ngModel.setElement(el);
+
 				};
 
-				ngModel.setFocus = function () {
-					if (tinyInstance)
-						tinyInstance.focus();
-				};
+				attrs.$observe('required', function (required) {
+					ngModel.$validate();
+				});
 
-				ngModel.isShowErrorMessage = function () {
-					return true;
-				};
 
 				attrs.$observe('disabled', toggleDisable);
 
