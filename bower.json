@@ -17,7 +17,7 @@
   ],
   "dependencies": {
     "angular": "~1.x",
-    "tinymce-dist": "https://github.com/benderr/tinymce-dist.git#4.3.0"
+    "tinymce-dist": "https://github.com/benderr/tinymce-dist.git#4.3.1"
   },
   "devDependencies": {
     "angular-mocks": "~1.x"
