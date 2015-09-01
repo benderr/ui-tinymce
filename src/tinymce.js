@@ -127,16 +127,31 @@ angular.module('ui.tinymce', [])
 							var maxlength = ed.settings.maxlength;
 							if (maxlength && ln >= maxlength) {
 								var code = e.which || e.charCode || e.keyCode;
-								var isUnblockedKey = _.some(Object.keys(KEYS), function(key){
+								var isUnblockedKey = _.some(Object.keys(KEYS), function (key) {
 									return KEYS[key] == code;
 								});
 
 								if (!isUnblockedKey) {
 									e.preventDefault();
 									e.stopPropagation();
+									updateView(ed);
 									return false;
 								}
 							}
+							updateView(ed);
+						});
+
+						ed.on("keydown", function (e) {
+							if (ed.settings.prevent_new_row == true) {
+								var code = e.which || e.charCode || e.keyCode;
+								if (code == KEYS.ENTER || (code == KEYS.ENTER && code.ctrlKey)) {
+									e.preventDefault();
+									e.stopPropagation();
+									updateView(ed);
+									return false;
+								}
+							}
+							updateView(ed);
 						});
 
 						if (expression.setup) {
@@ -198,6 +213,27 @@ angular.module('ui.tinymce', [])
 
 					var content = tinyInstance.getContent({format: 'text'});
 					if (!content || content.trim() == '') {
+						return false;
+					}
+					return true;
+				};
+
+				ngModel.$validators.maxchar = function (modelValue, viewValue) {
+
+					_initValidation();
+
+					if (!attrs.maxchar)
+						return true;
+
+					ensureInstance();
+					if (!tinyInstance)
+						return true;
+
+					var maxcount = parseInt(attrs.maxchar);
+
+					var content = tinyInstance.getContent({format: 'text'});
+					var ln = content ? content.replace(/\n/gi, '').trim().length : 0;
+					if (ln > maxcount) {
 						return false;
 					}
 					return true;
