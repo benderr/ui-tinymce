@@ -18,6 +18,21 @@ angular.module('ui.tinymce', [])
 					return;
 				}
 
+
+				const KEYS = {
+					BACKSPACE: 8,
+					TAB: 9,
+					LEFT: 37,
+					RIGHT: 39,
+					DELETE: 46,
+					F7: 118,
+					ENTER: 13,
+					HOME: 36,
+					END: 35,
+					UP: 38,
+					DOWN: 40
+				};
+
 				var ngModel = ctrls[0],
 					form = ctrls[1] || null;
 
@@ -104,6 +119,24 @@ angular.module('ui.tinymce', [])
 
 						ed.on('remove', function () {
 							element.remove();
+						});
+
+						ed.on("keydown", function (e) {
+							var content = ed.getContent({format: "text"});
+							var ln = content ? content.replace(/\n/gi, '').trim().length : 0;
+							var maxlength = ed.settings.maxlength;
+							if (maxlength && ln >= maxlength) {
+								var code = e.which || e.charCode || e.keyCode;
+								var isUnblockedKey = _.some(Object.keys(KEYS), function(key){
+									return KEYS[key] == code;
+								});
+
+								if (!isUnblockedKey) {
+									e.preventDefault();
+									e.stopPropagation();
+									return false;
+								}
+							}
 						});
 
 						if (expression.setup) {
